@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
-    healthCheckPath: /swagger-ui.html
+    healthCheckPath: /actuator/health
     envVars:
       - key: YUGABYTE_JDBC_URL
         sync: false

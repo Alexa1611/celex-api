@@ -8,4 +8,5 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/celex-api-*.jar app.jar
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xmx384m -Xms128m"
+CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
