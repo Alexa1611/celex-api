@@ -18,7 +18,7 @@
 
    | Key | Value |
    |-----|-------|
-   | `YUGABYTE_JDBC_URL` | `jdbc:postgresql://mx-central-1.275770c1-adc4-489e-a5d8-f3f3be165d99.aws.yugabyte.cloud:5433/yugabyte?sslmode=require` |
+   | `YUGABYTE_JDBC_URL` | `jdbc:postgresql://mx-central-1.275770c1-adc4-489e-a5d8-f3f3be165d99.aws.yugabyte.cloud:5433/yugabyte?sslmode=require&connectTimeout=60&socketTimeout=60` |
    | `YUGABYTE_DB_USER` | `alexa1celex` |
    | `YUGABYTE_DB_PASSWORD` | *(tu contraseña)* |
 
