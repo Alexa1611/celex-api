@@ -35,7 +35,9 @@ public class ProfesorServiceImpl implements ProfesorService {
     @Override
     @Transactional
     public ProfesorDTO save(ProfesorDTO dto) {
-        Profesor saved = repository.save(ProfesorMapper.toEntity(dto));
+        Profesor entity = ProfesorMapper.toEntity(dto);
+        entity.setIdProfesor(null);
+        Profesor saved = repository.save(entity);
         return ProfesorMapper.toDTO(saved);
     }
 

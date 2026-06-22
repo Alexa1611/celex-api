@@ -35,7 +35,9 @@ public class AlumnoServiceImpl implements AlumnoService {
     @Override
     @Transactional
     public AlumnoDTO save(AlumnoDTO dto) {
-        Alumno saved = repository.save(AlumnoMapper.toEntity(dto));
+        Alumno entity = AlumnoMapper.toEntity(dto);
+        entity.setIdAlumno(null);
+        Alumno saved = repository.save(entity);
         return AlumnoMapper.toDTO(saved);
     }
 
