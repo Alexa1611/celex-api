@@ -5,7 +5,10 @@ import com.ipn.mx.celex.application.dto.InscripcionDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,5 +56,17 @@ public class InscripcionController {
     @Operation(summary = "Eliminar inscripcion")
     public void delete(@PathVariable Long id) {
         service.deleteById(id);
+    }
+
+    @GetMapping("/inscripcion/{id}/constancia-pdf")
+    @Operation(summary = "Generar constancia de inscripcion en PDF",
+            description = "Genera y descarga un documento PDF con los datos de la inscripcion.")
+    public ResponseEntity<byte[]> generateConstanciaPdf(@PathVariable Long id) {
+        byte[] pdf = service.generateConstanciaPdf(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"constancia-inscripcion-" + id + ".pdf\"")
+                .body(pdf);
     }
 }

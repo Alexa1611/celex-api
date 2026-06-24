@@ -2,6 +2,7 @@ package com.ipn.mx.celex.application.impl;
 
 import com.ipn.mx.celex.application.EmailService;
 import com.ipn.mx.celex.application.InscripcionService;
+import com.ipn.mx.celex.application.PdfGenerationService;
 import com.ipn.mx.celex.application.dto.InscripcionDTO;
 import com.ipn.mx.celex.application.mapper.InscripcionMapper;
 import com.ipn.mx.celex.domain.entities.Alumno;
@@ -27,16 +28,19 @@ public class InscripcionServiceImpl implements InscripcionService {
     private final AlumnoRepository alumnoRepository;
     private final CursoRepository cursoRepository;
     private final EmailService emailService;
+    private final PdfGenerationService pdfGenerationService;
 
     public InscripcionServiceImpl(
             InscripcionRepository repository,
             AlumnoRepository alumnoRepository,
             CursoRepository cursoRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            PdfGenerationService pdfGenerationService) {
         this.repository = repository;
         this.alumnoRepository = alumnoRepository;
         this.cursoRepository = cursoRepository;
         this.emailService = emailService;
+        this.pdfGenerationService = pdfGenerationService;
     }
 
     @Override
@@ -75,6 +79,12 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new ResourceNotFoundException("Inscripcion no encontrada con id: " + id);
         }
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generateConstanciaPdf(Long id) {
+        return pdfGenerationService.generateConstanciaInscripcion(getEntity(id));
     }
 
     private Inscripcion buildEntity(InscripcionDTO dto, Inscripcion inscripcion) {

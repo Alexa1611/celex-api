@@ -26,5 +26,3 @@ services:
         sync: false
       - key: MAIL_FROM_NAME
         value: CELEX_FALSO
-      - key: UPLOAD_DIR
-        value: /tmp/celex-uploads

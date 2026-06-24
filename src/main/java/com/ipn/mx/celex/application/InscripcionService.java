@@ -10,4 +10,5 @@ public interface InscripcionService {
     InscripcionDTO save(InscripcionDTO dto);
     InscripcionDTO update(Long id, InscripcionDTO dto);
     void deleteById(Long id);
+    byte[] generateConstanciaPdf(Long id);
 }
