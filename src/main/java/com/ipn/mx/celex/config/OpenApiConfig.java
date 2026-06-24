@@ -14,7 +14,8 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("API CELEX - Cursos de Idiomas")
-                        .description("Sistema de gestion para cursos de idiomas. IPN - ESCOM")
+                        .description("Sistema de gestion para cursos de idiomas. IPN - ESCOM. "
+                                + "Incluye envio de correos via SMTP (Gmail) y Jakarta Mail.")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Equipo CELEX")

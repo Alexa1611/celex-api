@@ -1,6 +1,7 @@
 HELP.md
 yugabyte.env
 .env
+uploads/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

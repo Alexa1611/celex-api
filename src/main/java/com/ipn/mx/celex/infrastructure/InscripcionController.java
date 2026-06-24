@@ -36,7 +36,8 @@ public class InscripcionController {
 
     @PostMapping("/inscripcion")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Registrar inscripcion")
+    @Operation(summary = "Registrar inscripcion",
+            description = "Registra la inscripcion y envia correo de confirmacion al alumno si SMTP esta habilitado.")
     public InscripcionDTO save(@Valid @RequestBody InscripcionDTO dto) {
         return service.save(dto);
     }

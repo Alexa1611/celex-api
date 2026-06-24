@@ -12,3 +12,19 @@ services:
         sync: false
       - key: YUGABYTE_DB_PASSWORD
         sync: false
+      - key: MAIL_ENABLED
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: CELEX_FALSO
+      - key: UPLOAD_DIR
+        value: /tmp/celex-uploads

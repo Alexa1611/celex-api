@@ -1,5 +1,6 @@
 package com.ipn.mx.celex.application.impl;
 
+import com.ipn.mx.celex.application.EmailService;
 import com.ipn.mx.celex.application.InscripcionService;
 import com.ipn.mx.celex.application.dto.InscripcionDTO;
 import com.ipn.mx.celex.application.mapper.InscripcionMapper;
@@ -10,6 +11,8 @@ import com.ipn.mx.celex.domain.repository.AlumnoRepository;
 import com.ipn.mx.celex.domain.repository.CursoRepository;
 import com.ipn.mx.celex.domain.repository.InscripcionRepository;
 import com.ipn.mx.celex.infrastructure.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,17 +21,22 @@ import java.util.List;
 @Service
 public class InscripcionServiceImpl implements InscripcionService {
 
+    private static final Logger log = LoggerFactory.getLogger(InscripcionServiceImpl.class);
+
     private final InscripcionRepository repository;
     private final AlumnoRepository alumnoRepository;
     private final CursoRepository cursoRepository;
+    private final EmailService emailService;
 
     public InscripcionServiceImpl(
             InscripcionRepository repository,
             AlumnoRepository alumnoRepository,
-            CursoRepository cursoRepository) {
+            CursoRepository cursoRepository,
+            EmailService emailService) {
         this.repository = repository;
         this.alumnoRepository = alumnoRepository;
         this.cursoRepository = cursoRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -47,7 +55,9 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Transactional
     public InscripcionDTO save(InscripcionDTO dto) {
         Inscripcion inscripcion = buildEntity(dto, new Inscripcion());
-        return InscripcionMapper.toDTO(repository.save(inscripcion));
+        Inscripcion saved = repository.save(inscripcion);
+        enviarCorreoConfirmacion(saved);
+        return InscripcionMapper.toDTO(saved);
     }
 
     @Override
@@ -82,5 +92,13 @@ public class InscripcionServiceImpl implements InscripcionService {
     private Inscripcion getEntity(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inscripcion no encontrada con id: " + id));
+    }
+
+    private void enviarCorreoConfirmacion(Inscripcion inscripcion) {
+        try {
+            emailService.sendInscripcionConfirmacion(inscripcion);
+        } catch (Exception ex) {
+            log.warn("Inscripcion guardada, pero no se envio correo: {}", ex.getMessage());
+        }
     }
 }

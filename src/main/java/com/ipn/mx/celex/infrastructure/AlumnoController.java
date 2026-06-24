@@ -36,7 +36,8 @@ public class AlumnoController {
 
     @PostMapping("/alumno")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Registrar alumno")
+    @Operation(summary = "Registrar alumno",
+            description = "Registra un alumno y envia correo de bienvenida si SMTP esta habilitado.")
     public AlumnoDTO save(@Valid @RequestBody AlumnoDTO dto) {
         return service.save(dto);
     }

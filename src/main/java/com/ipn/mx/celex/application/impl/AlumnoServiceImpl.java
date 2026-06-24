@@ -1,11 +1,14 @@
 package com.ipn.mx.celex.application.impl;
 
 import com.ipn.mx.celex.application.AlumnoService;
+import com.ipn.mx.celex.application.EmailService;
 import com.ipn.mx.celex.application.dto.AlumnoDTO;
 import com.ipn.mx.celex.application.mapper.AlumnoMapper;
 import com.ipn.mx.celex.domain.entities.Alumno;
 import com.ipn.mx.celex.domain.repository.AlumnoRepository;
 import com.ipn.mx.celex.infrastructure.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +17,14 @@ import java.util.List;
 @Service
 public class AlumnoServiceImpl implements AlumnoService {
 
-    private final AlumnoRepository repository;
+    private static final Logger log = LoggerFactory.getLogger(AlumnoServiceImpl.class);
 
-    public AlumnoServiceImpl(AlumnoRepository repository) {
+    private final AlumnoRepository repository;
+    private final EmailService emailService;
+
+    public AlumnoServiceImpl(AlumnoRepository repository, EmailService emailService) {
         this.repository = repository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -38,6 +45,7 @@ public class AlumnoServiceImpl implements AlumnoService {
         Alumno entity = AlumnoMapper.toEntity(dto);
         entity.setIdAlumno(null);
         Alumno saved = repository.save(entity);
+        enviarCorreoRegistro(saved);
         return AlumnoMapper.toDTO(saved);
     }
 
@@ -64,5 +72,13 @@ public class AlumnoServiceImpl implements AlumnoService {
     private Alumno getEntity(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alumno no encontrado con id: " + id));
+    }
+
+    private void enviarCorreoRegistro(Alumno alumno) {
+        try {
+            emailService.sendAlumnoRegistro(alumno);
+        } catch (Exception ex) {
+            log.warn("Alumno guardado, pero no se envio correo: {}", ex.getMessage());
+        }
     }
 }
