@@ -18,16 +18,19 @@ public class EmailServiceImpl implements EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender mailSender;
+    private final BrevoEmailClient brevoClient;
     private final String fromAddress;
     private final String fromName;
     private final boolean enabled;
 
     public EmailServiceImpl(
             JavaMailSender mailSender,
+            BrevoEmailClient brevoClient,
             @Value("${celex.mail.from:}") String fromAddress,
             @Value("${celex.mail.from-name:CELEX_FALSO}") String fromName,
             @Value("${celex.mail.enabled:false}") boolean enabled) {
         this.mailSender = mailSender;
+        this.brevoClient = brevoClient;
         this.fromAddress = fromAddress;
         this.fromName = fromName;
         this.enabled = enabled;
@@ -35,13 +38,22 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return enabled && isMailConfigured();
+    }
+
+    public boolean usesBrevo() {
+        return brevoClient.isConfigured();
     }
 
     @Override
     public void send(String to, String subject, String text) {
         validateConfiguration();
         try {
+            if (brevoClient.isConfigured()) {
+                brevoClient.send(fromAddress, fromName, to, subject, text);
+                log.info("Correo enviado via Brevo API a {}", to);
+                return;
+            }
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
             helper.setFrom(fromAddress, fromName);
@@ -49,7 +61,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(text, false);
             mailSender.send(message);
-            log.info("Correo enviado a {}", to);
+            log.info("Correo enviado via SMTP a {}", to);
         } catch (Exception ex) {
             throw new IllegalStateException("No se pudo enviar el correo: " + ex.getMessage(), ex);
         }
@@ -58,7 +70,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendAlumnoRegistro(Alumno alumno) {
         if (!enabled) {
-            log.debug("SMTP deshabilitado; se omite correo de registro de alumno");
+            log.debug("Correo deshabilitado; se omite registro de alumno");
             return;
         }
 
@@ -87,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendInscripcionConfirmacion(Inscripcion inscripcion) {
         if (!enabled) {
-            log.debug("SMTP deshabilitado; se omite correo de inscripcion");
+            log.debug("Correo deshabilitado; se omite inscripcion");
             return;
         }
 
@@ -119,10 +131,17 @@ public class EmailServiceImpl implements EmailService {
         send(alumno.getCorreo(), subject, text);
     }
 
+    private boolean isMailConfigured() {
+        if (brevoClient.isConfigured()) {
+            return fromAddress != null && !fromAddress.isBlank();
+        }
+        return fromAddress != null && !fromAddress.isBlank();
+    }
+
     private void validateConfiguration() {
         if (!enabled) {
             throw new IllegalStateException(
-                    "El servicio SMTP no esta configurado. Define MAIL_ENABLED=true y las variables MAIL_*.");
+                    "El servicio de correo no esta habilitado. Define MAIL_ENABLED=true.");
         }
         if (fromAddress == null || fromAddress.isBlank()) {
             throw new IllegalStateException("MAIL_FROM o MAIL_USERNAME no esta configurado.");
